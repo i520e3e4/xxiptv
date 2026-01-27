@@ -12,6 +12,8 @@ export const PAGE_501_PATH = '501.html';
 // AppleCMS 配置
 export const USE_APPLE_CMS = true;
 // 示例API，实际请替换为您自己的苹果CMS采集接口 (JSON格式)
+export const APPLE_CMS_API_URL = 'https://api.tiankongapi.com/api.php/provide/vod/from/tkm3u8/at/json/';
+
 // 您的 Cloudflare Worker 代理地址，例如 'https://vod-proxy.xxx.workers.dev/?url='
 // 注意：如果在 worker 代码中逻辑是 /?url=...，这里的配置要保留 ?url= 结尾
 export const CORS_PROXY_URL = 'https://xxiptv-vod.wuhanaini8.workers.dev/?url=';
