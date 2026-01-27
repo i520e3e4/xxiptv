@@ -247,9 +247,10 @@ async function bootstrap() {
     await customElements.whenDefined('app-shell');
     const shell = document.querySelector('app-shell');
     if (!shell) return;
-    const sidebar = shell.shadowRoot.querySelector('iptv-sidebar');
-    const grid = shell.shadowRoot.querySelector('channel-grid');
-    const loadingEl = shell.shadowRoot.querySelector('loading-overlay');
+    // AppShell does not use Shadow DOM, so we query children directly
+    const sidebar = shell.querySelector('iptv-sidebar');
+    const grid = shell.querySelector('channel-grid');
+    const loadingEl = shell.querySelector('loading-overlay');
     const lineSelect = shell?.querySelector('#line-select');
 
     // Load external VOD sources (jin18.json)
