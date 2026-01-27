@@ -16,8 +16,9 @@ export const APPLE_CMS_API_URL = 'https://api.tiankongapi.com/api.php/provide/vo
 
 // 您的 Cloudflare Worker 代理地址，例如 'https://vod-proxy.xxx.workers.dev/?url='
 // 注意：如果在 worker 代码中逻辑是 /?url=...，这里的配置要保留 ?url= 结尾
-// 使用 Pages Functions (functions/proxy.js) 的相对路径
-export const CORS_PROXY_URL = '/proxy?url=';
+// 智能判断：如果是本地开发，使用线上代理；如果是线上部署，使用相对路径
+const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+export const CORS_PROXY_URL = isLocal ? 'https://xxiptv.686423.xyz/proxy?url=' : '/proxy?url=';
 
 export const LINE_OPTIONS = [
   { name: 'AppleCMS Source', url: APPLE_CMS_API_URL, type: 'apple_cms' }, // Special handling for this URL
