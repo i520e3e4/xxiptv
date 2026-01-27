@@ -37,27 +37,7 @@ export class AppShell extends HTMLElement {
         </main>
       </div>
 
-      <div class="donate-modal" aria-hidden="true">
-        <div class="donate-modal__panel" role="dialog" aria-label="打赏">
-          <div class="donate-modal__header">
-            <div>
-              <div class="donate-modal__eyebrow">Support</div>
-              <h3>打赏支持</h3>
-            </div>
-            <button class="donate-modal__close" type="button" aria-label="关闭">&times;</button>
-          </div>
-          <div class="donate-modal__grid">
-            <div class="donate-qr">
-              <img src="assets/alipay-qr.png" alt="支付宝二维码">
-              <span>支付宝</span>
-            </div>
-            <div class="donate-qr">
-              <img src="assets/wechat-qr.png" alt="微信二维码">
-              <span>微信</span>
-            </div>
-          </div>
-        </div>
-      </div>
+
 
       <loading-overlay id="loading-overlay"></loading-overlay>
     `;

@@ -14,6 +14,7 @@ import {
     APPLE_CMS_API_URL
 } from './config.js';
 import { MacCMSClient, mapCategoryToGroup, mapVideoToChannel } from './mac-cms-client.js';
+import { CORS_PROXY_URL } from './config.js';
 
 const LINE_STORAGE_KEY = 'iptv-active-line';
 
@@ -207,7 +208,8 @@ async function loadPlaylist(line, loadingEl, sidebar, grid) {
 
         if (isVod) {
             state.isVodMode = true;
-            state.vodClient = new MacCMSClient(target);
+            // Pass proxy URL to client
+            state.vodClient = new MacCMSClient(target, CORS_PROXY_URL);
             const categories = await state.vodClient.fetchCategories();
 
             const groups = categories.map(mapCategoryToGroup);
@@ -281,27 +283,7 @@ async function bootstrap() {
         sidebar.lines = state.lines;
     }
 
-    const donateTrigger = shell?.querySelector('.donate-trigger');
-    const donateModal = shell?.querySelector('.donate-modal');
-    const donateClose = shell?.querySelector('.donate-modal__close');
 
-    if (!sidebar || !grid || !loadingEl) return;
-
-    const setDonateOpen = open => {
-        if (!donateModal) return;
-        donateModal.classList.toggle('is-open', open);
-        donateModal.setAttribute('aria-hidden', open ? 'false' : 'true');
-        document.body.classList.toggle('donate-open', open);
-    };
-
-    donateTrigger?.addEventListener('click', () => setDonateOpen(true));
-    donateClose?.addEventListener('click', () => setDonateOpen(false));
-    donateModal?.addEventListener('click', event => {
-        if (event.target === donateModal) setDonateOpen(false);
-    });
-    document.addEventListener('keydown', event => {
-        if (event.key === 'Escape') setDonateOpen(false);
-    });
 
 
     renderLineOptions(lineSelect);

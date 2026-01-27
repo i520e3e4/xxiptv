@@ -24,7 +24,7 @@ export class IptvSidebar extends HTMLElement {
         </label>
         <ul class="category-list"></ul>
         <div class="sidebar__footer">
-          <button class="donate-trigger sidebar__donate" type="button">&#25171;&#36175;</button>
+
         </div>
       `;
     }

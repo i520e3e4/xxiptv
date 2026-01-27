@@ -1,12 +1,26 @@
 export class MacCMSClient {
-    constructor(baseUrl) {
+    constructor(baseUrl, proxyUrl = '') {
         this.baseUrl = baseUrl;
+        this.proxyUrl = proxyUrl;
+    }
+
+    _getProxiedUrl(targetUrl) {
+        if (!this.proxyUrl) return targetUrl;
+        // Assume proxyUrl ends with ?url= or similar query param, otherwise append logic needed
+        // The worker guide says https://.../?url=
+        // Let's ensure we construct it correctly
+        if (this.proxyUrl.includes('?')) {
+            return `${this.proxyUrl}${encodeURIComponent(targetUrl)}`;
+        }
+        return `${this.proxyUrl}?url=${encodeURIComponent(targetUrl)}`;
     }
 
     async fetchCategories() {
         try {
             // ?ac=list maps to the category list in standard MacCMS APIs
-            const response = await fetch(`${this.baseUrl}?ac=list`);
+            const target = `${this.baseUrl}?ac=list`;
+            const finalUrl = this._getProxiedUrl(target);
+            const response = await fetch(finalUrl);
             const data = await response.json();
             return data.class || []; // Standard MacCMS returns { class: [...], list: [...], ... }
         } catch (error) {
@@ -18,7 +32,9 @@ export class MacCMSClient {
     async fetchVideos(categoryId, page = 1) {
         try {
             // ?ac=videolist&t={id}&pg={page} maps to video list
-            const response = await fetch(`${this.baseUrl}?ac=videolist&t=${categoryId}&pg=${page}`);
+            const target = `${this.baseUrl}?ac=videolist&t=${categoryId}&pg=${page}`;
+            const finalUrl = this._getProxiedUrl(target);
+            const response = await fetch(finalUrl);
             const data = await response.json();
             return data;
         } catch (error) {
@@ -30,7 +46,9 @@ export class MacCMSClient {
     async searchVideos(keyword, page = 1) {
         try {
             // ?ac=videolist&wd={keyword}&pg={page}
-            const response = await fetch(`${this.baseUrl}?ac=videolist&wd=${encodeURIComponent(keyword)}&pg=${page}`);
+            const target = `${this.baseUrl}?ac=videolist&wd=${encodeURIComponent(keyword)}&pg=${page}`;
+            const finalUrl = this._getProxiedUrl(target);
+            const response = await fetch(finalUrl);
             const data = await response.json();
             return data;
         } catch (error) {
