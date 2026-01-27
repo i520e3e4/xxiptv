@@ -16,7 +16,8 @@ export const APPLE_CMS_API_URL = 'https://api.tiankongapi.com/api.php/provide/vo
 
 // 您的 Cloudflare Worker 代理地址，例如 'https://vod-proxy.xxx.workers.dev/?url='
 // 注意：如果在 worker 代码中逻辑是 /?url=...，这里的配置要保留 ?url= 结尾
-export const CORS_PROXY_URL = 'https://xxiptv-vod.wuhanaini8.workers.dev/?url=';
+// 使用 Pages Functions (functions/proxy.js) 的相对路径
+export const CORS_PROXY_URL = '/proxy?url=';
 
 export const LINE_OPTIONS = [
   { name: 'AppleCMS Source', url: APPLE_CMS_API_URL, type: 'apple_cms' }, // Special handling for this URL
