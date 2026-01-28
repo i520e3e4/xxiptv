@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
   <title>IPTV 播放器</title>
   <style>
     :root {
@@ -128,7 +129,7 @@
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#000;color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10000;';
         overlay.innerHTML = `
             <div style="font-size:20px;margin-bottom:20px;font-family:sans-serif;">Ready to Play</div>
-            <a href="${src}" id="playLink" style="padding:15px 30px;background:#4ae2ff;color:#000;text-decoration:none;border-radius:8px;font-weight:bold;font-size:18px;font-family:sans-serif;">立即播放 / Play Now</a>
+            <a href="${src}" id="playLink" rel="noreferrer" style="padding:15px 30px;background:#4ae2ff;color:#000;text-decoration:none;border-radius:8px;font-weight:bold;font-size:18px;font-family:sans-serif;">立即播放 / Play Now</a>
             <div style="margin-top:20px;color:#666;font-size:14px;font-family:sans-serif;">Most browsers confuse redirects with ads. Click the button above if not redirected.</div>
             <div id="debuginfo" style="margin-top:20px;color:yellow;font-size:12px;display:none;font-family:monospace;"></div>
         `;
