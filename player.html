@@ -4,7 +4,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="referrer" content="no-referrer">
   <title>IPTV 播放器</title>
   <style>
     :root {
@@ -47,21 +46,9 @@
 </head>
 
 <body>
-  <div class="frame-shell" id="frameShell">
+  <div class="frame-shell">
     <iframe id="playerFrame" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen></iframe>
   </div>
-
-  <!-- Global Error Handler -->
-  <script>
-    window.onerror = function (message, source, lineno, colno, error) {
-      const errDiv = document.createElement('div');
-      errDiv.style.cssText = 'position:fixed;top:0;left:0;width:100%;background:rgba(200,0,0,0.9);color:white;padding:20px;z-index:9999;font-size:14px;white-space:pre-wrap;';
-      errDiv.textContent = `JS Error: ${message}\nLine: ${lineno}:${colno}\nSource: ${source}`;
-      document.body.appendChild(errDiv);
-      return false;
-    };
-  </script>
-
   <script type="module">
     import {
       DEFAULT_PLAYER_BASE,
@@ -70,8 +57,6 @@
       ENABLE_501_PAGE,
       PAGE_501_PATH
     } from './config.js';
-
-    console.log('Player script started');
 
     const shouldRedirect = (currentPath, targetPage) => {
       const normalizedTarget = targetPage.replace(/^\//, '');
@@ -117,45 +102,18 @@
 
       const params = new URLSearchParams(window.location.search);
       const streamUrl = params.get('url')?.trim() || '';
-      // const isLive = params.get('isLive') ?? 'true'; // Unused
+      const isLive = params.get('isLive') ?? 'true';
       const playerBase = params.get('player') || params.get('playerPath') || DEFAULT_PLAYER_BASE;
 
-      const src = buildPlayerSrc(playerBase, streamUrl);
-      console.log('Target Src:', src);
+      const frame = document.getElementById('playerFrame');
+      const encodedUrl = encodeURIComponent(streamUrl);
+      const xgPath = `/xg-player.html?url=${encodedUrl}&isLive=${encodeURIComponent(isLive)}`;
+      const src = isLinuxDesktop()
+        ? buildPlayerSrc(playerBase, streamUrl)
+        : xgPath
 
-      if (src) {
-        // Create full screen overlay instead of replacing body innerHTML
-        const overlay = document.createElement('div');
-        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#000;color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10000;';
-        overlay.innerHTML = `
-            <div style="font-size:20px;margin-bottom:20px;font-family:sans-serif;">Ready to Play</div>
-            <a href="${src}" id="playLink" rel="noreferrer" style="padding:15px 30px;background:#4ae2ff;color:#000;text-decoration:none;border-radius:8px;font-weight:bold;font-size:18px;font-family:sans-serif;">立即播放 / Play Now</a>
-            <div style="margin-top:20px;color:#666;font-size:14px;font-family:sans-serif;">Most browsers confuse redirects with ads. Click the button above if not redirected.</div>
-            <div id="debuginfo" style="margin-top:20px;color:yellow;font-size:12px;display:none;font-family:monospace;"></div>
-        `;
-        document.body.appendChild(overlay);
-
-        // Remove iframe to save resources
-        const frame = document.getElementById('playerFrame');
-        if (frame) frame.remove();
-
-        // Auto redirect after 3 seconds
-        setTimeout(() => {
-          try {
-            console.log('Attempting auto redirect...');
-            window.location.href = src;
-          } catch (e) {
-            console.error('Redirect failed', e);
-            const dbg = document.getElementById('debuginfo');
-            if (dbg) {
-              dbg.style.display = 'block';
-              dbg.innerText = 'Auto-redirect failed: ' + e.message;
-            }
-          }
-        }, 3000);
-      } else {
-        console.warn("No src derived from", streamUrl);
-      }
+      // 依赖播放器自身的提示能力，直接加载播放器地址
+      frame.src = src || playerBase || 'about:blank';
     }
   </script>
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015"
