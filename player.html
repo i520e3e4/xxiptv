@@ -125,13 +125,15 @@
           </div>
         `;
 
-        // 尝试自动跳转
-        try {
-          window.location.href = src;
-        } catch (e) {
-          document.getElementById('debuginfo').style.display = 'block';
-          document.getElementById('debuginfo').innerText = 'Auto-redirect failed: ' + e.message;
-        }
+        // 尝试自动跳转 (延迟3秒，确保用户也能看到界面)
+        setTimeout(() => {
+          try {
+            window.location.href = src;
+          } catch (e) {
+            document.getElementById('debuginfo').style.display = 'block';
+            document.getElementById('debuginfo').innerText = 'Auto-redirect failed: ' + e.message;
+          }
+        }, 3000);
       }
     }
   </script>
