@@ -46,9 +46,21 @@
 </head>
 
 <body>
-  <div class="frame-shell">
+  <div class="frame-shell" id="frameShell">
     <iframe id="playerFrame" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen></iframe>
   </div>
+
+  <!-- Global Error Handler -->
+  <script>
+    window.onerror = function (message, source, lineno, colno, error) {
+      const errDiv = document.createElement('div');
+      errDiv.style.cssText = 'position:fixed;top:0;left:0;width:100%;background:rgba(200,0,0,0.9);color:white;padding:20px;z-index:9999;font-size:14px;white-space:pre-wrap;';
+      errDiv.textContent = `JS Error: ${message}\nLine: ${lineno}:${colno}\nSource: ${source}`;
+      document.body.appendChild(errDiv);
+      return false;
+    };
+  </script>
+
   <script type="module">
     import {
       DEFAULT_PLAYER_BASE,
@@ -57,6 +69,8 @@
       ENABLE_501_PAGE,
       PAGE_501_PATH
     } from './config.js';
+
+    console.log('Player script started');
 
     const shouldRedirect = (currentPath, targetPage) => {
       const normalizedTarget = targetPage.replace(/^\//, '');
@@ -102,38 +116,44 @@
 
       const params = new URLSearchParams(window.location.search);
       const streamUrl = params.get('url')?.trim() || '';
-      const isLive = params.get('isLive') ?? 'true';
+      // const isLive = params.get('isLive') ?? 'true'; // Unused
       const playerBase = params.get('player') || params.get('playerPath') || DEFAULT_PLAYER_BASE;
 
-      const frame = document.getElementById('playerFrame');
-      const encodedUrl = encodeURIComponent(streamUrl);
-      const xgPath = `/xg-player.html?url=${encodedUrl}&isLive=${encodeURIComponent(isLive)}`;
-      // 统一使用 Tesla 专用播放器，以解决跨域和格式兼容性问题
-      // 原有的本地 xgplayer 无法解决第三方 VOD 的 CORS 问题
       const src = buildPlayerSrc(playerBase, streamUrl);
+      console.log('Target Src:', src);
 
-      // 由于 tesla-kit.com 设置了 X-Frame-Options: SAMEORIGIN，无法在 iframe 中嵌入
-      // 必须进行页面跳转
       if (src) {
-        // 提供交互式跳转，防止被浏览器拦截或因时序问题导致白屏
-        document.body.innerHTML = `
-          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;background:#000;color:white;font-family:sans-serif;">
-            <div style="font-size:20px;margin-bottom:20px;">Ready to Play</div>
-            <a href="${src}" id="playLink" style="padding:15px 30px;background:#4ae2ff;color:#000;text-decoration:none;border-radius:8px;font-weight:bold;font-size:18px;">立即播放 / Play Now</a>
-            <div style="margin-top:20px;color:#666;font-size:14px;">If not redirected automatically, click the button above.</div>
-            <div id="debuginfo" style="margin-top:20px;color:red;font-size:12px;display:none;"></div>
-          </div>
+        // Create full screen overlay instead of replacing body innerHTML
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#000;color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10000;';
+        overlay.innerHTML = `
+            <div style="font-size:20px;margin-bottom:20px;font-family:sans-serif;">Ready to Play</div>
+            <a href="${src}" id="playLink" style="padding:15px 30px;background:#4ae2ff;color:#000;text-decoration:none;border-radius:8px;font-weight:bold;font-size:18px;font-family:sans-serif;">立即播放 / Play Now</a>
+            <div style="margin-top:20px;color:#666;font-size:14px;font-family:sans-serif;">Most browsers confuse redirects with ads. Click the button above if not redirected.</div>
+            <div id="debuginfo" style="margin-top:20px;color:yellow;font-size:12px;display:none;font-family:monospace;"></div>
         `;
+        document.body.appendChild(overlay);
 
-        // 尝试自动跳转 (延迟3秒，确保用户也能看到界面)
+        // Remove iframe to save resources
+        const frame = document.getElementById('playerFrame');
+        if (frame) frame.remove();
+
+        // Auto redirect after 3 seconds
         setTimeout(() => {
           try {
+            console.log('Attempting auto redirect...');
             window.location.href = src;
           } catch (e) {
-            document.getElementById('debuginfo').style.display = 'block';
-            document.getElementById('debuginfo').innerText = 'Auto-redirect failed: ' + e.message;
+            console.error('Redirect failed', e);
+            const dbg = document.getElementById('debuginfo');
+            if (dbg) {
+              dbg.style.display = 'block';
+              dbg.innerText = 'Auto-redirect failed: ' + e.message;
+            }
           }
         }, 3000);
+      } else {
+        console.warn("No src derived from", streamUrl);
       }
     }
   </script>
