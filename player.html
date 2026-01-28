@@ -108,9 +108,9 @@
       const frame = document.getElementById('playerFrame');
       const encodedUrl = encodeURIComponent(streamUrl);
       const xgPath = `/xg-player.html?url=${encodedUrl}&isLive=${encodeURIComponent(isLive)}`;
-      const src = isLinuxDesktop()
-        ? buildPlayerSrc(playerBase, streamUrl)
-        : xgPath
+      // 统一使用 Tesla 专用播放器，以解决跨域和格式兼容性问题
+      // 原有的本地 xgplayer 无法解决第三方 VOD 的 CORS 问题
+      const src = buildPlayerSrc(playerBase, streamUrl);
 
       // 依赖播放器自身的提示能力，直接加载播放器地址
       frame.src = src || playerBase || 'about:blank';
