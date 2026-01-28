@@ -112,8 +112,16 @@
       // 原有的本地 xgplayer 无法解决第三方 VOD 的 CORS 问题
       const src = buildPlayerSrc(playerBase, streamUrl);
 
-      // 依赖播放器自身的提示能力，直接加载播放器地址
-      frame.src = src || playerBase || 'about:blank';
+      // 由于 tesla-kit.com 设置了 X-Frame-Options: SAMEORIGIN，无法在 iframe 中嵌入
+      // 必须进行页面跳转
+      if (src) {
+        // 显示加载提示
+        const frame = document.getElementById('playerFrame');
+        if (frame) frame.remove(); // 移除 iframe
+        document.body.innerHTML = '<div style="color:white;text-align:center;padding-top:20%;font-size:24px;">正在跳转到专用播放器...</div>';
+
+        window.location.replace(src);
+      }
     }
   </script>
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015"
