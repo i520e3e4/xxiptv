@@ -115,12 +115,23 @@
       // 由于 tesla-kit.com 设置了 X-Frame-Options: SAMEORIGIN，无法在 iframe 中嵌入
       // 必须进行页面跳转
       if (src) {
-        // 显示加载提示
-        const frame = document.getElementById('playerFrame');
-        if (frame) frame.remove(); // 移除 iframe
-        document.body.innerHTML = '<div style="color:white;text-align:center;padding-top:20%;font-size:24px;">正在跳转到专用播放器...</div>';
+        // 提供交互式跳转，防止被浏览器拦截或因时序问题导致白屏
+        document.body.innerHTML = `
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;background:#000;color:white;font-family:sans-serif;">
+            <div style="font-size:20px;margin-bottom:20px;">Ready to Play</div>
+            <a href="${src}" id="playLink" style="padding:15px 30px;background:#4ae2ff;color:#000;text-decoration:none;border-radius:8px;font-weight:bold;font-size:18px;">立即播放 / Play Now</a>
+            <div style="margin-top:20px;color:#666;font-size:14px;">If not redirected automatically, click the button above.</div>
+            <div id="debuginfo" style="margin-top:20px;color:red;font-size:12px;display:none;"></div>
+          </div>
+        `;
 
-        window.location.replace(src);
+        // 尝试自动跳转
+        try {
+          window.location.href = src;
+        } catch (e) {
+          document.getElementById('debuginfo').style.display = 'block';
+          document.getElementById('debuginfo').innerText = 'Auto-redirect failed: ' + e.message;
+        }
       }
     }
   </script>
